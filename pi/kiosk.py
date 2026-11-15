@@ -259,22 +259,36 @@ def ensure_speaker(screen=None, wait_s=25):
     return False
 
 
-def keep_speaker_awake():
-    """Streams silence to the BT speaker so it never goes idle (some speakers drop the link)."""
+def speaker_watchdog():
+    """Keeps the BT speaker usable: reconnects as soon as it is switched on, and
+    streams silence while connected so it never goes idle (some speakers drop the link)."""
     if not BT_SPEAKER:
         return
     zeros = b"\0" * 3200  # 0.1 s of 16 kHz mono 16-bit
     while True:
         if not speaker_connected():
-            time.sleep(3)
-            continue
+            AUDIO["bt"] = False
+            subprocess.run(["bluetoothctl", "--timeout", "8", "connect", BT_SPEAKER], capture_output=True)
+            if not speaker_connected():
+                time.sleep(4)
+                continue
+            log("[speaker] connected")
+            time.sleep(2)  # let PipeWire create the speaker output
+        AUDIO["bt"] = True
         try:
             p = subprocess.Popen(["pw-cat", "--playback", "--raw", "--target", bt_target(), "--rate", "16000",
                                   "--channels", "1", "--format", "s16", "-"],
                                  stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            n = 0
             while p.poll() is None:
                 p.stdin.write(zeros)
                 p.stdin.flush()
+                n += 1
+                if n % 50 == 0 and not speaker_connected():  # check every ~5 s
+                    log("[speaker] disconnected")
+                    AUDIO["bt"] = False
+                    p.kill()
+                    break
         except (BrokenPipeError, OSError):
             pass
         time.sleep(2)
@@ -584,6 +598,8 @@ class Kiosk:
         n = self.outbox.pending()
         if n:
             return f"Uploading {n}..."
+        if BT_SPEAKER and not AUDIO["bt"]:
+            return "Speaker OFF"
         return default
 
     def show_problem(self, seconds=4):
@@ -717,7 +733,7 @@ class Kiosk:
         try:
             self.outbox.add({"type": "session", "code": self.code, "roll": roll, "sid": sid, "at": time.time()})
             self.progress(phase="welcome", roll=roll, total=n)
-            ensure_speaker(self.screen, wait_s=20)
+            ensure_speaker(self.screen, wait_s=10)
             self.screen.show(self.title[:21], "Welcome! Listen to the instructions.", f"Roll {roll}")
             self.speak("welcome", "Welcome")
             for i, (secs, text) in enumerate(self.questions, 1):
@@ -750,8 +766,8 @@ class Kiosk:
             self.screen.show("Connecting...", PROBLEMS[self.server.problem][1], "")
             time.sleep(3)
         threading.Thread(target=self.heartbeat, daemon=True).start()
-        ensure_speaker(self.screen)
-        threading.Thread(target=keep_speaker_awake, daemon=True).start()
+        ensure_speaker(self.screen, wait_s=8)
+        threading.Thread(target=speaker_watchdog, daemon=True).start()
         self.screen.show("Ready", "Online" if self.server.base else "Offline: cached tests only", f"v{VERSION}")
         beep(1000, 100)
         while True:

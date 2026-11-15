@@ -113,7 +113,7 @@ app.post('/api/login', (req, res) => {
   if (!pass || !process.env.SESSION_SECRET) {
     return res.status(500).json({ error: 'Login is not configured on the server.' });
   }
-  if (!safeEq(String(username || '').trim(), user) || !safeEq(String(password || ''), pass)) {
+  if (!safeEq(String(username || '').trim().toLowerCase(), user.toLowerCase()) || !safeEq(String(password || ''), pass)) {
     return res.status(401).json({ error: 'Invalid username or password.' });
   }
   setSessionCookie(res, user);
@@ -124,6 +124,8 @@ app.post('/api/logout', (req, res) => {
   res.setHeader('Set-Cookie', `${COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`);
   res.status(204).end();
 });
+
+app.get('/api/me', (req, res) => res.json({ username: adminUser(req) }));
 
 app.use('/api', (req, res, next) => {
   if (req.path.startsWith('/device/')) {
@@ -143,7 +145,6 @@ app.use('/api', (req, res, next) => {
   res.status(401).json({ error: 'Please sign in.' });
 });
 
-app.get('/api/me', (req, res) => res.json({ username: adminUser(req) }));
 
 // ───────────────────────────── data access
 

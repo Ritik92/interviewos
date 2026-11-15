@@ -49,24 +49,44 @@
   const form = document.getElementById('login-form');
   const errorEl = document.getElementById('error');
 
+  const btn = form.querySelector('button[type="submit"]');
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     errorEl.classList.add('hidden');
     const u = document.getElementById('username').value.trim();
     const p = document.getElementById('password').value;
+    if (!u || !p) {
+      errorEl.textContent = 'Enter username and password.';
+      errorEl.classList.remove('hidden');
+      return;
+    }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Signing in…';
+    const timer = new AbortController();
+    const t = setTimeout(() => timer.abort(), 25000);
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: u, password: p }),
+        signal: timer.signal,
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Sign in failed.');
+      if (!res.ok) throw new Error(data.error || `Sign in failed (${res.status}).`);
       IOS.setSession({ username: data.username, signed_in_at: new Date().toISOString() });
+      btn.innerHTML = 'Opening dashboard…';
       window.location.href = '/dashboard.html';
     } catch (err) {
-      errorEl.textContent = err.message;
+      console.error('[login]', err);
+      errorEl.textContent = err.name === 'AbortError' || err instanceof TypeError
+        ? 'Could not reach the server. Check your internet and try again.'
+        : err.message;
       errorEl.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Sign in';
+    } finally {
+      clearTimeout(t);
     }
   });
 </script>

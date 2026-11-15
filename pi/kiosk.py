@@ -594,7 +594,8 @@ class Kiosk:
     def read_keys(self, header, footer, max_len, allow_exit=False):
         val = ""
         self.keys.clear()
-        self.screen.show(header, val or "_", self.status_footer(footer))
+        shown = (val, self.status_footer(footer))
+        self.screen.show(header, val or "_", shown[1])
         while True:
             k = self.keys.get(timeout=3)
             if k is None:
@@ -610,7 +611,10 @@ class Kiosk:
                 return val
             elif k == "EXIT" and allow_exit:
                 return ""
-            self.screen.show(header, val or "_", self.status_footer(footer))
+            now = (val, self.status_footer(footer))
+            if now != shown:  # redraw only when something changed
+                shown = now
+                self.screen.show(header, val or "_", now[1])
 
     # ---- test + audio cache
     def load_test(self, code):

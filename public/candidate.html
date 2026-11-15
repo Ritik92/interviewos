@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Interview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0B0B0F;
+    --surface: #14141B;
+    --surface-2: #1B1B26;
+    --border: #2A2A36;
+    --text: #ECECF1;
+    --text-dim: #9A9AA8;
+    --text-faint: #6A6A78;
+    --accent: #7C5CFF;
+    --cyan: #5BE3D9;
+    --pink: #FF6B9D;
+    --success: #5BE3D9;
+    --danger: #FF6B6B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; width: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: none;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(124, 92, 255, 0.18), transparent 50%),
+      radial-gradient(circle at 85% 100%, rgba(91, 227, 217, 0.10), transparent 50%),
+      var(--bg);
+  }
+
+  /* === Header === */
+  .kiosk-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 56px;
+    border-bottom: 1px solid var(--border);
+  }
+  .progress-dots {
+    display: flex;
+    gap: 10px;
+  }
+  .dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .dot.done { background: var(--accent); border-color: var(--accent); }
+  .dot.current {
+    background: transparent;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.2);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.2); }
+    50% { box-shadow: 0 0 0 8px rgba(124, 92, 255, 0.35); }
+  }
+  .progress-label {
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-dim);
+  }
+  .brand .ind {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 14px var(--accent);
+  }
+
+  /* === Main === */
+  .kiosk-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 80px;
+    min-height: 0;
+  }
+  .stage {
+    max-width: 1000px;
+    width: 100%;
+    text-align: center;
+  }
+  .stage h1 {
+    font-size: 56px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+  .stage p {
+    font-size: 22px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 30px;
+  }
+  .stage .question-num {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(124, 92, 255, 0.12);
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 24px;
+  }
+  .stage .question-text {
+    font-size: 42px;
+    line-height: 1.35;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* === Footer / status === */
+  .kiosk-footer {
+    padding: 36px 56px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+  }
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .status .icon {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .status.speaking .icon {
+    background: rgba(91, 227, 217, 0.12);
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+  .status.listening .icon {
+    background: rgba(255, 107, 157, 0.12);
+    border-color: var(--pink);
+    color: var(--pink);
+    animation: micPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes micPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.4); }
+    50% { box-shadow: 0 0 0 14px rgba(255, 107, 157, 0); }
+  }
+  .status.processing .icon {
+    background: rgba(124, 92, 255, 0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .status .label { font-size: 18px; font-weight: 600; letter-spacing: 0.005em; }
+  .status .sub { font-size: 14px; color: var(--text-dim); margin-top: 2px; }
+  .timer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+  .timer.warning { color: #FFB454; }
+  .timer.danger { color: var(--danger); }
+
+  .timebar {
+    width: 100%;
+    height: 4px;
+    background: var(--surface-2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .timebar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pink), var(--accent));
+    transition: width 0.4s linear;
+    border-radius: 2px;
+  }
+
+  /* === Waveform (decorative, animated only when listening) === */
+  .wave {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 32px;
+  }
+  .wave span {
+    display: block;
+    width: 4px;
+    background: var(--text-faint);
+    border-radius: 2px;
+    height: 6px;
+    transition: height 0.15s;
+  }
+  .status.listening .wave span {
+    background: var(--pink);
+    animation: wavebar 1s ease-in-out infinite;
+  }
+  .wave span:nth-child(1) { animation-delay: 0s; }
+  .wave span:nth-child(2) { animation-delay: 0.1s; }
+  .wave span:nth-child(3) { animation-delay: 0.2s; }
+  .wave span:nth-child(4) { animation-delay: 0.3s; }
+  .wave span:nth-child(5) { animation-delay: 0.4s; }
+  .wave span:nth-child(6) { animation-delay: 0.5s; }
+  .wave span:nth-child(7) { animation-delay: 0.6s; }
+  @keyframes wavebar {
+    0%, 100% { height: 6px; }
+    50% { height: 28px; }
+  }
+
+  /* === Phase visuals === */
+  .hidden { display: none !important; }
+
+  .complete-icon {
+    width: 88px; height: 88px;
+    margin: 0 auto 32px;
+    border-radius: 50%;
+    background: rgba(91, 227, 217, 0.12);
+    border: 2px solid var(--cyan);
+    display: grid;
+    place-items: center;
+    color: var(--cyan);
+    font-size: 42px;
+  }
+
+  .err {
+    color: var(--danger);
+    font-size: 14px;
+    text-align: center;
+    padding: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<header class="kiosk-header">
+  <div class="brand">
+    <span class="ind"></span>
+    <span>InterviewOS</span>
+  </div>
+  <div class="progress-label" id="progress-label">Loading…</div>
+  <div class="progress-dots" id="progress-dots"></div>
+</header>
+
+<main class="kiosk-main">
+  <div class="stage" id="stage">
+    <div class="question-num hidden" id="question-num"></div>
+    <h1 id="title">Preparing…</h1>
+    <p id="subtitle"></p>
+    <div class="question-text hidden" id="question-text"></div>
+  </div>
+</main>
+
+<footer class="kiosk-footer">
+  <div class="status-bar">
+    <div class="status" id="status">
+      <div class="icon" id="status-icon">●</div>
+      <div>
+        <div class="label" id="status-label">Connecting…</div>
+        <div class="sub" id="status-sub">Please wait</div>
+      </div>
+    </div>
+    <div class="wave hidden" id="wave">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="timer hidden" id="timer">--:--</div>
+  </div>
+  <div class="timebar hidden" id="timebar"><div class="fill" id="timebar-fill" style="width:0"></div></div>
+  <div class="err hidden" id="err"></div>
+</footer>
+
+<script>
+const params = new URLSearchParams(location.search);
+const CODE = (params.get('code') || '').toUpperCase();
+
+const els = {
+  progressLabel: document.getElementById('progress-label'),
+  progressDots: document.getElementById('progress-dots'),
+  stage: document.getElementById('stage'),
+  title: document.getElementById('title'),
+  subtitle: document.getElementById('subtitle'),
+  questionNum: document.getElementById('question-num'),
+  questionText: document.getElementById('question-text'),
+  status: document.getElementById('status'),
+  statusIcon: document.getElementById('status-icon'),
+  statusLabel: document.getElementById('status-label'),
+  statusSub: document.getElementById('status-sub'),
+  timer: document.getElementById('timer'),
+  timebar: document.getElementById('timebar'),
+  timebarFill: document.getElementById('timebar-fill'),
+  wave: document.getElementById('wave'),
+  err: document.getElementById('err'),
+};
+
+let test = null;
+let lastPhase = null;
+let listeningStart = null;
+let listeningEnd = null;
+let tickInterval = null;
+
+function fmtTime(seconds) {
+  if (seconds < 0) seconds = 0;
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function renderProgress(currentIdx, total) {
+  if (!total) {
+    els.progressDots.innerHTML = '';
+    els.progressLabel.textContent = '';
+    return;
+  }
+  const max = Math.min(total, 12);
+  let html = '';
+  for (let i = 0; i < max; i++) {
+    let cls = 'dot';
+    if (i < currentIdx) cls += ' done';
+    else if (i === currentIdx) cls += ' current';
+    html += `<span class="${cls}"></span>`;
+  }
+  els.progressDots.innerHTML = html;
+  if (currentIdx >= 0 && currentIdx < total) {
+    els.progressLabel.textContent = `Question ${currentIdx + 1} of ${total}`;
+  } else if (currentIdx >= total) {
+    els.progressLabel.textContent = `${total} of ${total}`;
+  } else {
+    els.progressLabel.textContent = `${total} questions`;
+  }
+}
+
+function setStatus(cls, icon, label, sub) {
+  els.status.className = 'status ' + (cls || '');
+  els.statusIcon.textContent = icon;
+  els.statusLabel.textContent = label;
+  els.statusSub.textContent = sub || '';
+}
+
+function showQuestion(q) {
+  els.title.classList.add('hidden');
+  els.subtitle.classList.add('hidden');
+  els.questionNum.classList.remove('hidden');
+  els.questionText.classList.remove('hidden');
+  els.questionNum.textContent = `Question ${q.id}`;
+  els.questionText.textContent = q.text;
+}
+
+function showMessage(big, small) {
+  els.title.classList.remove('hidden');
+  els.subtitle.classList.remove('hidden');
+  els.questionNum.classList.add('hidden');
+  els.questionText.classList.add('hidden');
+  els.title.textContent = big || '';
+  els.subtitle.textContent = small || '';
+}
+
+function showComplete() {
+  els.title.classList.remove('hidden');
+  els.subtitle.classList.remove('hidden');
+  els.questionNum.classList.add('hidden');
+  els.questionText.classList.add('hidden');
+  if (!document.querySelector('.complete-icon')) {
+    const c = document.createElement('div');
+    c.className = 'complete-icon';
+    c.textContent = '✓';
+    els.stage.insertBefore(c, els.title);
+  }
+  els.title.textContent = 'Interview complete';
+  els.subtitle.textContent = 'Thank you. Your responses have been submitted.';
+}
+
+function clearTickInterval() {
+  if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
+}
+
+function startCountdown(startMs, endMs) {
+  clearTickInterval();
+  listeningStart = startMs;
+  listeningEnd = endMs;
+  const tick = () => {
+    const now = Date.now();
+    const total = endMs - startMs;
+    const remaining = Math.max(0, endMs - now);
+    const elapsed = total - remaining;
+    els.timer.textContent = fmtTime(remaining / 1000);
+    els.timer.classList.toggle('warning', remaining < total * 0.3 && remaining > total * 0.1);
+    els.timer.classList.toggle('danger', remaining <= total * 0.1);
+    const pct = total > 0 ? Math.max(0, Math.min(100, (elapsed / total) * 100)) : 0;
+    els.timebarFill.style.width = pct + '%';
+    if (remaining <= 0) clearTickInterval();
+  };
+  tick();
+  tickInterval = setInterval(tick, 200);
+}
+
+function showTimer(show) {
+  els.timer.classList.toggle('hidden', !show);
+  els.timebar.classList.toggle('hidden', !show);
+  if (!show) clearTickInterval();
+}
+
+function showWave(show) {
+  els.wave.classList.toggle('hidden', !show);
+}
+
+function applyState(s) {
+  const phase = s.phase || 'idle';
+  const total = test ? test.questions.length : (s.total_questions || 0);
+  const currentIdx = (typeof s.current_question_index === 'number') ? s.current_question_index : -1;
+
+  if (phase !== 'complete') {
+    renderProgress(currentIdx, total);
+  }
+
+  const currentQ = (test && currentIdx >= 0 && currentIdx < test.questions.length)
+    ? test.questions[currentIdx]
+    : null;
+
+  if (phase === 'idle') {
+    showMessage(test ? test.title : 'Ready', test ? `${test.questions.length} question${test.questions.length === 1 ? '' : 's'} · ${test.duration_minutes} minutes` : 'Waiting for interview to start…');
+    setStatus('', '○', 'Ready to start', 'The device will begin shortly');
+    showTimer(false); showWave(false);
+  } else if (phase === 'welcome') {
+    showMessage('Welcome', s.message || 'Your interview is about to begin.');
+    setStatus('speaking', '🔊', 'Speaking', 'Please listen');
+    showTimer(false); showWave(false);
+  } else if (phase === 'speaking') {
+    if (currentQ) showQuestion(currentQ);
+    setStatus('speaking', '🔊', 'Question is being read', 'Listen carefully');
+    showTimer(false); showWave(false);
+  } else if (phase === 'listening') {
+    if (currentQ) showQuestion(currentQ);
+    setStatus('listening', '🎤', 'Listening', 'Answer now. Speak clearly.');
+    showWave(true);
+    if (s.listening_started_at && s.listening_ends_at) {
+      const start = new Date(s.listening_started_at).getTime();
+      const end = new Date(s.listening_ends_at).getTime();
+      if (phase !== lastPhase || !tickInterval) startCountdown(start, end);
+    }
+    showTimer(true);
+  } else if (phase === 'processing') {
+    if (currentQ) showQuestion(currentQ);
+    setStatus('processing', '⋯', 'Saving your answer', 'Hold on a moment');
+    showTimer(false); showWave(false);
+  } else if (phase === 'complete') {
+    showComplete();
+    setStatus('', '✓', 'All done', 'You may leave the device');
+    showTimer(false); showWave(false);
+    renderProgress(total, total);
+  } else if (phase === 'error') {
+    showMessage('Something went wrong', s.message || 'Please notify the proctor.');
+    setStatus('', '!', 'Error', '');
+    showTimer(false); showWave(false);
+  }
+
+  lastPhase = phase;
+}
+
+async function poll() {
+  try {
+    const res = await fetch(`/api/tests/${encodeURIComponent(CODE)}/state`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Test code not found');
+    const data = await res.json();
+    if (data.test) test = data.test;
+    els.err.classList.add('hidden');
+    applyState(data);
+  } catch (err) {
+    els.err.textContent = err.message;
+    els.err.classList.remove('hidden');
+  }
+}
+
+if (!CODE) {
+  showMessage('No test code', 'Please open this page with ?code=XXX-XXX');
+  setStatus('', '!', 'Missing test code', '');
+} else {
+  poll();
+  setInterval(poll, 700);
+}
+
+// Prevent some accidental exits
+window.addEventListener('contextmenu', (e) => e.preventDefault());
+document.addEventListener('keydown', (e) => {
+  // Block common escape combos (kiosk hardening)
+  if ((e.ctrlKey || e.metaKey) && ['w', 'q', 'r', 't', 'n'].includes(e.key.toLowerCase())) e.preventDefault();
+  if (e.key === 'F11' || e.key === 'F5') e.preventDefault();
+});
+</script>
+</body>
+</html>

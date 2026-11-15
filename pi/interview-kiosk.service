@@ -1,0 +1,16 @@
+[Unit]
+Description=InterviewOS kiosk (keypad + OLED + speaker + mic)
+After=pipewire.service wireplumber.service
+Wants=pipewire.service wireplumber.service
+StartLimitIntervalSec=0
+
+[Service]
+EnvironmentFile=-%h/interview-pi/.env
+# Pick up the latest code from GitHub on every (re)start; ignored when offline.
+ExecStartPre=-/usr/bin/timeout 25 /usr/bin/git -C %h/interview-pi/app pull --ff-only --quiet
+ExecStart=%h/interview-pi/venv/bin/python -u %h/interview-pi/app/pi/kiosk.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

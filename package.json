@@ -1,0 +1,26 @@
+{
+  "name": "interviewos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "InterviewOS: voice interview kiosk (Raspberry Pi) + web dashboard on Vercel",
+  "type": "commonjs",
+  "main": "server.js",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "db:init": "node scripts/db-init.js",
+    "migrate": "node scripts/migrate-old-data.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "@vercel/blob": "^2.0.0",
+    "@vercel/functions": "^3.0.0",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "undici": "^6.29.1"
+  }
+}

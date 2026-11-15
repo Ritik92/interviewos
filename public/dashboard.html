@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>InterviewOS · Tests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar" id="topbar"></header>
+  <main class="container">
+    <div class="page-header">
+      <div>
+        <h1>Your tests</h1>
+        <div class="sub">Create voice interviews and share a code with the candidate's device.</div>
+      </div>
+      <a class="btn btn-primary" href="/create.html">+ New test</a>
+    </div>
+
+    <div id="tests-mount"></div>
+  </main>
+</div>
+
+<script src="/js/config.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+  IOS.requireAuth();
+  IOS.renderTopbar('topbar');
+
+  const mount = document.getElementById('tests-mount');
+
+  function renderEmpty() {
+    mount.innerHTML = `
+      <div class="empty-state">
+        <h3>No tests yet</h3>
+        <div>Create your first interview to get a test code your Raspberry Pi can use.</div>
+        <a class="btn btn-primary mt-3" href="/create.html" style="margin-top:18px;">+ Create test</a>
+      </div>
+    `;
+  }
+
+  function renderList(tests) {
+    if (!tests.length) return renderEmpty();
+    mount.innerHTML = `<div class="tests-grid">${tests.map(t => `
+      <a class="test-card" href="/test.html?code=${encodeURIComponent(t.code)}">
+        <div class="title">${escapeHtml(t.title)}</div>
+        ${t.role ? `<div class="role">${escapeHtml(t.role)}</div>` : ''}
+        <div class="code">${t.code}</div>
+        <div class="meta">
+          <span>${t.question_count} question${t.question_count === 1 ? '' : 's'}</span>
+          <span>${t.duration_minutes} min</span>
+        </div>
+      </a>
+    `).join('')}</div>`;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]);
+  }
+
+  (async () => {
+    try {
+      const tests = await IOS.api('/api/tests');
+      tests.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      renderList(tests);
+    } catch (err) {
+      mount.innerHTML = `<div class="auth-error">${err.message}</div>`;
+    }
+  })();
+</script>
+</body>
+</html>

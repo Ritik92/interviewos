@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>InterviewOS · New test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar" id="topbar"></header>
+  <main class="container">
+    <div class="page-header">
+      <div>
+        <h1>New test</h1>
+        <div class="sub">Configure the role, then generate questions with AI or add them manually.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Test details</div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="title">Title</label>
+          <input id="title" placeholder="e.g. Senior Frontend Engineer interview" />
+        </div>
+        <div class="field">
+          <label for="role">Role</label>
+          <input id="role" placeholder="e.g. Frontend Engineer" />
+        </div>
+        <div class="field">
+          <label for="duration">Total duration (minutes)</label>
+          <input id="duration" type="number" min="5" max="240" value="60" />
+        </div>
+        <div class="field">
+          <label for="num-questions">Number of questions (AI mode)</label>
+          <input id="num-questions" type="number" min="1" max="20" value="6" />
+        </div>
+        <div class="field full">
+          <label for="topics">Skills / topics to cover</label>
+          <textarea id="topics" placeholder="e.g. React, system design, debugging, communication"></textarea>
+        </div>
+        <div class="field">
+          <label for="difficulty">Difficulty</label>
+          <select id="difficulty">
+            <option value="junior">Junior</option>
+            <option value="mid" selected>Mid</option>
+            <option value="senior">Senior</option>
+            <option value="staff">Staff / lead</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="time-per-question">Default time per question (sec)</label>
+          <input id="time-per-question" type="number" min="30" max="900" value="180" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="section-title">Questions</div>
+
+      <div class="mode-selector">
+        <div class="mode-option active" data-mode="ai">
+          <div class="label">Generate with AI</div>
+          <div class="hint">Use OpenAI to draft questions from the topics above.</div>
+        </div>
+        <div class="mode-option" data-mode="manual">
+          <div class="label">Write manually</div>
+          <div class="hint">Add each question yourself. You can mix in AI questions too.</div>
+        </div>
+      </div>
+
+      <div id="ai-controls">
+        <button id="generate-btn" class="btn btn-secondary">
+          <span>✨ Generate questions</span>
+        </button>
+        <span class="text-dim text-sm" style="margin-left:10px;">
+          Drafts will appear below for you to edit before saving.
+        </span>
+      </div>
+
+      <div id="questions-list" class="question-list mt-3"></div>
+
+      <button id="add-question-btn" class="btn btn-ghost mt-2">+ Add question</button>
+    </div>
+
+    <div class="row between mt-4">
+      <a class="btn btn-ghost" href="/dashboard.html">Cancel</a>
+      <button id="save-btn" class="btn btn-primary btn-lg">Save test</button>
+    </div>
+  </main>
+</div>
+
+<script src="/js/config.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/create.js"></script>
+</body>
+</html>
